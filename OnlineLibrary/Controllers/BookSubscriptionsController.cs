@@ -14,36 +14,33 @@ namespace OnlineLibrary.Controllers
     [ApiController]
     public class BookSubscriptionsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext g_Context;
 
         public BookSubscriptionsController(ApplicationDbContext context)
         {
-            _context = context;
+            g_Context = context;
         }
 
-
-        [HttpPost]
+        [HttpPost("subscribe")]
         public async Task<ActionResult<BookSubscription>> PostBookSubscription(BookSubscription bookSubscription)
         {
-            _context.BookSubscriptions.Add(bookSubscription);
-            await _context.SaveChangesAsync();
+            g_Context.BookSubscriptions.Add(bookSubscription);
+            await g_Context.SaveChangesAsync();
 
             return CreatedAtAction("GetBookSubscription", new { id = bookSubscription.BookSubscriptionID }, bookSubscription);
         }
 
-        // DELETE: api/BookSubscriptions/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<BookSubscription>> DeleteBookSubscription(Guid id)
+        [HttpPost("unsubscribe")]
+        public async Task<ActionResult<BookSubscription>> DeleteBookSubscription(BookSubscription bookSubscriptionDel)
         {
-            var bookSubscription = await _context.BookSubscriptions.FindAsync(id);
-            if (bookSubscription == null)
+            var bookSubscriptions = await g_Context.BookSubscriptions.Where(item => item.BookID == bookSubscriptionDel.BookID && item.UserID == bookSubscriptionDel.UserID)?.ToListAsync();
+            if (bookSubscriptions == null || bookSubscriptions.Count == 0)
             {
                 return NotFound();
             }
-
-            _context.BookSubscriptions.Remove(bookSubscription);
-            await _context.SaveChangesAsync();
-
+            var bookSubscription = bookSubscriptions.FirstOrDefault();
+            g_Context.BookSubscriptions.Remove(bookSubscription);
+            await g_Context.SaveChangesAsync();
             return bookSubscription;
         }
     }

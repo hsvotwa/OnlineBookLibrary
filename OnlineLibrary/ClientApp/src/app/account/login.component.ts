@@ -3,7 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule  } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
-import { AccountService, AlertService } from '../common-services';
+import { AccountService } from '../common-services';
 
 @Component({ templateUrl: 'login.component.html' })
 export class LoginComponent implements OnInit {
@@ -15,8 +15,7 @@ export class LoginComponent implements OnInit {
         private formBuilder: FormBuilder,
         private route: ActivatedRoute,
         private router: Router,
-        private accountService: AccountService,
-        private alertService: AlertService
+        private accountService: AccountService
     ) { }
 
     ngOnInit() {
@@ -24,12 +23,12 @@ export class LoginComponent implements OnInit {
             username: ['', Validators.required],
             password: ['', Validators.required]
         });
+      this.accountService.logout();
     }
     get f() { return this.form.controls; }
 
     onSubmit() {
         this.submitted = true;
-        this.alertService.clear();
         if (this.form.invalid) {
             return;
         }
@@ -42,8 +41,9 @@ export class LoginComponent implements OnInit {
                     const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
                     this.router.navigateByUrl(returnUrl);
                 },
-                error: error => {
-                    this.alertService.error(error);
+              error: error => {
+                //console.log(JSON.parse(error.error));
+                alert("Unable to log you in. Please check your credentials.");
                     this.loading = false;
                 }
             });

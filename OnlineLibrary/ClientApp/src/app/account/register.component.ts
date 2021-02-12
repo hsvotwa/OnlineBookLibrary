@@ -3,51 +3,49 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
-import { AccountService, AlertService } from '../common-services';
+import { AccountService } from '../common-services';
 
 @Component({ templateUrl: 'register.component.html' })
 export class RegisterComponent implements OnInit {
-    form: FormGroup;
-    loading = false;
-    submitted = false;
+  form: FormGroup;
+  loading = false;
+  submitted = false;
 
-    constructor(
-        private formBuilder: FormBuilder,
-        private route: ActivatedRoute,
-        private router: Router,
-        private accountService: AccountService,
-        private alertService: AlertService
-    ) { }
+  constructor(
+    private formBuilder: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private accountService: AccountService
+  ) { }
 
-    ngOnInit() {
-        this.form = this.formBuilder.group({
-            fullName: ['', Validators.required],
-            username: ['', Validators.required],
-            password: ['', [Validators.required, Validators.minLength(6)]]
-        });
+  ngOnInit() {
+    this.form = this.formBuilder.group({
+      fullName: ['', Validators.required],
+      username: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
+
+  get f() { return this.form.controls; }
+
+  onSubmit() {
+    this.submitted = true;
+    if (this.form.invalid) {
+      return;
     }
 
-    get f() { return this.form.controls; }
-
-    onSubmit() {
-        this.submitted = true;
-        this.alertService.clear();
-        if (this.form.invalid) {
-            return;
+    this.loading = true;
+    this.accountService.register(this.form.value)
+      .pipe(first())
+      .subscribe({
+        next: () => {
+          alert('Registration successful');
+          this.router.navigate(['../login'], { relativeTo: this.route });
+        },
+        error: error => {
+          alert(JSON.parse(error.error).message);
+          this.loading = false;
         }
-
-        this.loading = true;
-        this.accountService.register(this.form.value)
-            .pipe(first())
-            .subscribe({
-                next: () => {
-                    this.alertService.success('Registration successful', { keepAfterRouteChange: true });
-                    this.router.navigate(['../login'], { relativeTo: this.route });
-                },
-                error: error => {
-                    this.alertService.error(error);
-                    this.loading = false;
-                }
-            });
-    }
+      });
+  }
 }

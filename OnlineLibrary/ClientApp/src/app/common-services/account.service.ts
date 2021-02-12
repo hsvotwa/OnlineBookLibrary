@@ -36,8 +36,14 @@ export class AccountService {
     logout() {
         localStorage.removeItem('user');
         this.userSubject.next(null);
-        this.router.navigate(['/account/login']);
+        this.router.navigate(['/login']);
     }
+
+  loginInit() {
+    localStorage.removeItem('user');
+    this.userSubject.next(null);
+    this.router.navigate(['/login']);
+  }
 
     register(user: User) {
         return this.http.post(`${environment.apiUrl}/users/register`, user);

@@ -1,5 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Book } from '../common-models';
+import { BookSubscriptionService } from '../common-services';
 
 @Component({
   selector: 'app-book-data',
@@ -7,19 +9,20 @@ import { HttpClient } from '@angular/common/http';
 })
 export class BookDataComponent {
   public books: Book[];
+  public isUserLoggedIn: boolean;
 
-  constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string, private bookSubscriptionService: BookSubscriptionService) {
     http.get<Book[]>(baseUrl + 'api/books').subscribe(result => {
       this.books = result;
     }, error => console.error(error));
+    this.isUserLoggedIn = localStorage.getItem("user") != null;
   }
-}
 
-interface Book {
-  title: string;
-  yearPublished: number;
-  subscriptionPrice: number;
-  coverImage: string;
-  author: string;
-  booked: boolean;
+  subscribe(bookId) {
+    this.bookSubscriptionService.subscribe(bookId);
+  }
+
+  unSubscribe(bookId) {
+    this.bookSubscriptionService.unSubscribe(bookId);
+  }
 }

@@ -1,17 +1,22 @@
 <h1 id="tableLabel">Book Library</h1>
 
-<p class="mb-5">The list of all your awesome books in our collection.</p>
+<p class="mb-2">The list of all your awesome books in our collection.</p>
 
 <p *ngIf="!books"><em>Loading...</em></p>
 
 <div class="row" *ngIf="books">
+  <div *ngIf="!isUserLoggedIn" class="text-warning col-12 mb-2">
+   NB: You'll see subscription options once you log in
+  </div>
   <div class="col-3 mb-3" *ngFor="let book of books">
     <img class="book-image mb-1" src="/Images/{{book.coverImage}}" />
     <p><strong>Title: </strong>{{book.title}}</p>
     <p><strong>Author: </strong>{{book.author}}</p>
     <p><strong>Year published: </strong>{{book.yearPublished}}</p>
     <p><strong>Subscription price: </strong>{{book.subscriptionPrice}}</p>
-    <button class="btn btn-success" *ngIf="!book.subscribed">Subscribe</button>
-    <button class="btn btn-error" *ngIf="book.subscribed">Unubscribe</button>
+    <div *ngIf="isUserLoggedIn">
+      <button class="btn btn-success" ng-click="subscribe(book.bookId)" *ngIf="!book.subscribed">Subscribe</button>
+      <button class="btn btn-error" ng-click="unSubscribe(book.bookId)" *ngIf="book.subscribed">Unsubscribe</button>
+    </div>
   </div>
 </div>
